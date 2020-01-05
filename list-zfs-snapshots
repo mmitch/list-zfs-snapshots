@@ -85,11 +85,25 @@ sub show_snapshots($) {
     die "Display of snapshots for volume $volume requested,\nbut snapshot listing is not implemented yet.\n";
 }
 
+sub show_help() {
+    print <<EOF
+usage:
+  list-zfs-snapshots              -  list all volumes
+  list-zfs-snapshots <pool>       -  list all volumes from <pool>
+  list-zfs-snapshots <volume>     -  list all snapshots from <volume>
+  list-zfs-snapshots -h | --help  -  show this help
+EOF
+    ;
+}
+
 my @volumes = read_volumes;
 my $command = shift @ARGV;
 
 if (! defined $command or $command eq '') {
     show_volumes @volumes;
+}
+elsif ($command eq '-h' or $command eq '--help') {
+    show_help;
 }
 elsif (is_contained 'POOL', $command, @volumes) {
     my $pool = $command;
