@@ -128,9 +128,9 @@ sub show_snapshots($) {
 sub show_help() {
     print <<EOF
 usage:
-  list-zfs-snapshots              -  list all volumes
-  list-zfs-snapshots <pool>       -  list all volumes from <pool>
-  list-zfs-snapshots <volume>     -  list all snapshots from <volume>
+  list-zfs-snapshots              -  list total snapshot usage of all volumes
+  list-zfs-snapshots <pool>       -  list total snapshot usage of all volumes in <pool>
+  list-zfs-snapshots <volume>     -  list detailled snapshot usage in <volume>
   list-zfs-snapshots -h | --help  -  show this help
 EOF
     ;
