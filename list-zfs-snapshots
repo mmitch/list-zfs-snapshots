@@ -11,6 +11,7 @@ my $ZFS = '/sbin/zfs';
 
 sub percent_string($$$) {
     my ($val, $max_val, $max_len) = @_;
+    return '' unless $max_val;
     return '#' x ($val * $max_len / $max_val);
 }
 
@@ -119,9 +120,11 @@ sub show_snapshots($) {
 	my $size = $snapshot->{SIZE};
 	my $date = $snapshot->{DATE};
 	my $histogram = percent_string($size, $max_size, 16);
-	my $size_percent = $size * 100 / $total_size;
+	my $size_percent = $total_size
+	    ? sprintf "%3.0f%%", $size * 100 / $total_size
+	    : '  - ';
 	my $size_readable = format_bytes( $size );
-	printf "%16s  %3.0f%%  %4s  %s\n", $histogram, $size_percent, $size_readable, $name;
+	printf "%16s  %s  %4s  %s\n", $histogram, $size_percent, $size_readable, $name;
     }
 }
 
