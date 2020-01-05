@@ -7,13 +7,14 @@ use Number::Bytes::Human qw(format_bytes);
 use constant TRUE => !! 1;
 use constant FALSE => !! '';
 
+my $ZFS = '/sbin/zfs';
+
 sub percent_string($$$) {
     my ($val, $max_val, $max_len) = @_;
     return '#' x ($val * $max_len / $max_val);
 }
 
 sub read_volumes() {
-    my $ZFS = '/sbin/zfs';
     my @volumes = ();
     
     open my $fh, '-|', "$ZFS list -o name,usedsnap -H -p" or die "can't call $ZFS: $!\n";
@@ -38,6 +39,27 @@ sub read_volumes() {
     return @volumes;
 }
 
+sub read_snapshots($) {
+    my ($volume) = @_;
+    my @snapshots = ();
+    
+    open my $fh, '-|', "$ZFS list -o name,used,creation -t snapshot -H -p $volume" or die "can't call $ZFS: $!\n";
+    while (my $line = <$fh>) {
+	chomp $line;
+	my ($name, $size, $date) = split /\s+/, $line, 3;
+	next unless defined $date;
+	
+	push @snapshots, {
+	    NAME => $name,
+	    SIZE => $size,
+	    DATE => $date,
+	};
+    }
+    close $fh or die "can't close $ZFS: $!\n";
+    
+    return @snapshots;
+}
+
 sub is_contained($$@) {
     my ($field, $value, @list) = @_;
     foreach my $element (@list) {
@@ -55,6 +77,10 @@ sub filter_by_pool($@) {
 
 sub sort_by_size(@) {
     return sort { $a->{SIZE} <=> $b->{SIZE} } @_;
+}
+
+sub sort_by_date(@) {
+    return sort { $b->{DATE} <=> $a->{DATE} } @_;
 }
 
 sub sum_size(@) {
@@ -82,7 +108,21 @@ sub show_volumes(@) {
 
 sub show_snapshots($) {
     my ($volume) = @_;
-    die "Display of snapshots for volume $volume requested,\nbut snapshot listing is not implemented yet.\n";
+
+    my @snapshots = read_snapshots $volume;
+    @snapshots = sort_by_date @snapshots;
+    my $total_size = sum_size @snapshots;
+    my $max_size = (sort_by_size @snapshots)[-1]->{SIZE};
+    
+    foreach my $snapshot (@snapshots) {
+	my $name = $snapshot->{NAME};
+	my $size = $snapshot->{SIZE};
+	my $date = $snapshot->{DATE};
+	my $histogram = percent_string($size, $max_size, 16);
+	my $size_percent = $size * 100 / $total_size;
+	my $size_readable = format_bytes( $size );
+	printf "%16s  %3.0f%%  %4s  %s\n", $histogram, $size_percent, $size_readable, $name;
+    }
 }
 
 sub show_help() {
