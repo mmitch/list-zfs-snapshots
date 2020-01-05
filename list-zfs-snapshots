@@ -1,0 +1,124 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use Number::Bytes::Human qw(format_bytes);
+
+use constant TRUE => !! 1;
+use constant FALSE => !! '';
+
+sub percent_string($$$) {
+    my ($val, $max_val, $max_len) = @_;
+    return '#' x ($val * $max_len / $max_val);
+}
+
+sub read_volumes() {
+    my $ZFS = '/sbin/zfs';
+    my @volumes = ();
+    
+    open my $fh, '-|', "$ZFS list -o name,usedsnap -H -p" or die "can't call $ZFS: $!\n";
+    while (my $line = <$fh>) {
+	chomp $line;
+	my ($name, $size) = split /\s+/, $line, 2;
+	next unless defined $size;
+	
+	my $pool = $name;
+	$pool =~ s|/.*$||;
+
+	next if $pool eq $name;
+
+	push @volumes, {
+	    NAME => $name,
+	    POOL => $pool,
+	    SIZE => $size,
+	};
+    }
+    close $fh or die "can't close $ZFS: $!\n";
+    
+    return @volumes;
+}
+
+sub is_contained($$@) {
+    my ($field, $value, @list) = @_;
+    foreach my $element (@list) {
+	if ($element->{$field} eq $value) {
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+sub curry(&@) {
+    my ($method, @fixed_parameters) = @_;
+    return sub { $method->(@fixed_parameters, @_) };
+}
+
+sub get_action_by_filter($@) {
+    my ($term, @volumes) = @_;
+
+    if (! defined $term or $term eq '') {
+	return curry(\&show_volumes, \&no_filter);
+    }
+    
+    if (is_contained 'POOL', $term, @volumes) {
+	return curry(\&show_volumes, curry(\&filter_by_pool, $term));
+    }
+    
+    if (is_contained 'NAME', $term, @volumes) {
+	return curry(\&show_snapshots, $term);
+    }
+
+    return curry(\&unknown_filter, $term);
+}
+
+sub unknown_filter($@) {
+    my ($term, undef) = @_;
+    die "filter term <$term> is neither a known pool nor a known volume\n";
+}
+
+sub no_filter($) {
+    return TRUE;
+}
+
+sub filter_by_pool($$) {
+    my ($pool, $volume) = @_;
+    return $volume->{POOL} eq $pool;
+}
+
+sub sort_by_size(@) {
+    return sort { $a->{SIZE} <=> $b->{SIZE} } @_;
+}
+
+sub sum_size(@) {
+    my $total_size = 0;
+    $total_size += $_->{SIZE} foreach @_;
+    return $total_size;
+}
+
+sub show_volumes(&@) {
+    my ($filter, @volumes) = @_;
+
+    @volumes = grep { $filter->($_) } @volumes;
+    @volumes = sort_by_size @volumes;
+    my $total_size = sum_size @volumes;
+    my $max_size = $volumes[-1]->{SIZE};
+
+    foreach my $volume (@volumes) {
+	my $name = $volume->{NAME};
+	my $size = $volume->{SIZE};
+	my $histogram = percent_string($size, $max_size, 16);
+	my $size_percent = $size * 100 / $total_size;
+	my $size_readable = format_bytes( $size );
+	printf "%16s  %3.0f%%  %4s  %s\n", $histogram, $size_percent, $size_readable, $name;
+    }
+}
+
+sub show_snapshots($) {
+    my ($volume) = @_;
+    die "Display of snapshots for volume $volume requested,\nbut snapshot listing is not implemented yet.\n";
+}
+
+my $filter_term = shift @ARGV;
+my @volumes = read_volumes;
+my $action = get_action_by_filter $filter_term, @volumes;
+$action->(@volumes);
