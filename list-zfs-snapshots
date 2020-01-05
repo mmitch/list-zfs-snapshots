@@ -48,41 +48,9 @@ sub is_contained($$@) {
     return FALSE;
 }
 
-sub curry(&@) {
-    my ($method, @fixed_parameters) = @_;
-    return sub { $method->(@fixed_parameters, @_) };
-}
-
-sub get_action_by_filter($@) {
-    my ($term, @volumes) = @_;
-
-    if (! defined $term or $term eq '') {
-	return curry(\&show_volumes, \&no_filter);
-    }
-    
-    if (is_contained 'POOL', $term, @volumes) {
-	return curry(\&show_volumes, curry(\&filter_by_pool, $term));
-    }
-    
-    if (is_contained 'NAME', $term, @volumes) {
-	return curry(\&show_snapshots, $term);
-    }
-
-    return curry(\&unknown_filter, $term);
-}
-
-sub unknown_filter($@) {
-    my ($term, undef) = @_;
-    die "filter term <$term> is neither a known pool nor a known volume\n";
-}
-
-sub no_filter($) {
-    return TRUE;
-}
-
-sub filter_by_pool($$) {
-    my ($pool, $volume) = @_;
-    return $volume->{POOL} eq $pool;
+sub filter_by_pool($@) {
+    my $pool = shift;
+    return grep { $_->{POOL} eq $pool } @_;
 }
 
 sub sort_by_size(@) {
@@ -95,10 +63,9 @@ sub sum_size(@) {
     return $total_size;
 }
 
-sub show_volumes(&@) {
-    my ($filter, @volumes) = @_;
+sub show_volumes(@) {
+    my (@volumes) = @_;
 
-    @volumes = grep { $filter->($_) } @volumes;
     @volumes = sort_by_size @volumes;
     my $total_size = sum_size @volumes;
     my $max_size = $volumes[-1]->{SIZE};
@@ -118,7 +85,21 @@ sub show_snapshots($) {
     die "Display of snapshots for volume $volume requested,\nbut snapshot listing is not implemented yet.\n";
 }
 
-my $filter_term = shift @ARGV;
 my @volumes = read_volumes;
-my $action = get_action_by_filter $filter_term, @volumes;
-$action->(@volumes);
+my $command = shift @ARGV;
+
+if (! defined $command or $command eq '') {
+    show_volumes @volumes;
+}
+elsif (is_contained 'POOL', $command, @volumes) {
+    my $pool = $command;
+    @volumes = filter_by_pool $pool, @volumes;
+    show_volumes @volumes;
+}
+elsif (is_contained 'NAME', $command, @volumes) {
+    my $volume = $command;
+    show_snapshots $volume;
+}
+else {
+    die "<$command> is neither a known pool nor a known volume\n";
+}
