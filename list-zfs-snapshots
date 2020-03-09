@@ -90,6 +90,12 @@ sub sum_size(@) {
     return $total_size;
 }
 
+sub get_percentage($$) {
+    my ($part, $total) = @_;
+    return '  - ' unless $total;
+    return sprintf "%3.0f%%", $part * 100 / $total;
+}
+
 sub show_volumes(@) {
     my (@volumes) = @_;
 
@@ -101,9 +107,9 @@ sub show_volumes(@) {
 	my $name = $volume->{NAME};
 	my $size = $volume->{SIZE};
 	my $histogram = percent_string($size, $max_size, 16);
-	my $size_percent = $size * 100 / $total_size;
+	my $size_percent = get_percentage($size, $total_size);
 	my $size_readable = format_bytes( $size );
-	printf "%16s  %3.0f%%  %4s  %s\n", $histogram, $size_percent, $size_readable, $name;
+	printf "%16s  %s  %4s  %s\n", $histogram, $size_percent, $size_readable, $name;
     }
 }
 
@@ -120,9 +126,7 @@ sub show_snapshots($) {
 	my $size = $snapshot->{SIZE};
 	my $date = $snapshot->{DATE};
 	my $histogram = percent_string($size, $max_size, 16);
-	my $size_percent = $total_size
-	    ? sprintf "%3.0f%%", $size * 100 / $total_size
-	    : '  - ';
+	my $size_percent = get_percentage($size, $total_size);
 	my $size_readable = format_bytes( $size );
 	printf "%16s  %s  %4s  %s\n", $histogram, $size_percent, $size_readable, $name;
     }
