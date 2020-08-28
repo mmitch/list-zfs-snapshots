@@ -2,15 +2,18 @@
 use strict;
 use warnings;
 
+use feature 'signatures';
+no warnings 'experimental::signatures';
+## no critic (ProhibitSubroutinePrototypes)
+
 use Number::Bytes::Human qw(format_bytes);
 
-use constant TRUE => !! 1;
+use constant TRUE  => !! 1;
 use constant FALSE => !! '';
 
 my $ZFS = '/sbin/zfs';
 
-sub percent_string($$$) {
-    my ($val, $max_val, $max_len) = @_;
+sub percent_string($val, $max_val, $max_len) {
     return '' unless $max_val;
     return '#' x ($val * $max_len / $max_val);
 }
@@ -40,8 +43,7 @@ sub read_volumes() {
     return @volumes;
 }
 
-sub read_snapshots($) {
-    my ($volume) = @_;
+sub read_snapshots($volume) {
     my @snapshots = ();
     
     open my $fh, '-|', "$ZFS list -o name,used,creation -t snapshot -H -p $volume" or die "can't call $ZFS: $!\n";
@@ -61,8 +63,7 @@ sub read_snapshots($) {
     return @snapshots;
 }
 
-sub is_contained($$@) {
-    my ($field, $value, @list) = @_;
+sub is_contained($field, $value, @list) {
     foreach my $element (@list) {
 	if ($element->{$field} eq $value) {
 	    return TRUE;
@@ -71,36 +72,32 @@ sub is_contained($$@) {
     return FALSE;
 }
 
-sub filter_by_pool($@) {
-    my $pool = shift;
-    return grep { $_->{POOL} eq $pool } @_;
+sub filter_by_pool($pool, @elements) {
+    return grep { $_->{POOL} eq $pool } @elements;
 }
 
-sub sort_by_size(@) {
-    my @sorted = sort { $a->{SIZE} <=> $b->{SIZE} } @_;
+sub sort_by_size(@elements) {
+    my @sorted = sort { $a->{SIZE} <=> $b->{SIZE} } @elements;
     return @sorted;
 }
 
-sub sort_by_date(@) {
-    my @sorted = sort { $b->{DATE} <=> $a->{DATE} } @_;
+sub sort_by_date(@elements) {
+    my @sorted = sort { $b->{DATE} <=> $a->{DATE} } @elements;
     return @sorted;
 }
 
-sub sum_size(@) {
+sub sum_size(@elements) {
     my $total_size = 0;
-    $total_size += $_->{SIZE} foreach @_;
+    $total_size += $_->{SIZE} foreach @elements;
     return $total_size;
 }
 
-sub get_percentage($$) {
-    my ($part, $total) = @_;
+sub get_percentage($part, $total) {
     return '  - ' unless $total;
     return sprintf "%3.0f%%", $part * 100 / $total;
 }
 
-sub show_volumes(@) {
-    my (@volumes) = @_;
-
+sub show_volumes(@volumes) {
     @volumes = sort_by_size @volumes;
     my $total_size = sum_size @volumes;
     my $max_size = $volumes[-1]->{SIZE};
@@ -115,9 +112,7 @@ sub show_volumes(@) {
     }
 }
 
-sub show_snapshots($) {
-    my ($volume) = @_;
-
+sub show_snapshots($volume) {
     my @snapshots = read_snapshots $volume;
     @snapshots = sort_by_date @snapshots;
     my $total_size = sum_size @snapshots;
