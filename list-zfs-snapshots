@@ -77,11 +77,13 @@ sub filter_by_pool($@) {
 }
 
 sub sort_by_size(@) {
-    return sort { $a->{SIZE} <=> $b->{SIZE} } @_;
+    my @sorted = sort { $a->{SIZE} <=> $b->{SIZE} } @_;
+    return @sorted;
 }
 
 sub sort_by_date(@) {
-    return sort { $b->{DATE} <=> $a->{DATE} } @_;
+    my @sorted = sort { $b->{DATE} <=> $a->{DATE} } @_;
+    return @sorted;
 }
 
 sub sum_size(@) {
