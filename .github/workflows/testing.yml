@@ -6,12 +6,12 @@ on:
     types: [opened]
 
 jobs:
-  build:
+  test-only:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: ['ubuntu-latest']
-        perl: ['5.32', '5.30', '5.28']
+        perl: ['5.30', '5.28']
     name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -20,5 +20,24 @@ jobs:
         with:
           perl-version: ${{ matrix.perl }}
       - run: perl -V
-      - run: cpanm Number::Bytes::Human
+      - run: cpanm --notest --skip-satisfied Number::Bytes::Human
       - run: prove -lv t
+  test-and-cover:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['ubuntu-latest']
+        perl: ['5.32']
+    name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+      - run: perl -V
+      - run: cpanm --notest --skip-satisfied Number::Bytes::Human Devel::Cover::Report::Clover
+      - run: PERL5OPT=-MDevel::Cover prove -lv t
+      - run: cover -select list-zfs-snapshots -ignore 't/*' -report clover
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
