@@ -11,7 +11,7 @@ use Number::Bytes::Human qw(format_bytes);
 use constant TRUE  => !! 1;
 use constant FALSE => !! '';
 
-my $ZFS = '/sbin/zfs';
+my $ZFS = $ENV{ZFS_BINARY} // '/sbin/zfs';
 
 sub percent_string($val, $max_val, $max_len) {
     return '' unless $max_val;
