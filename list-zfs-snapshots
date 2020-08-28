@@ -140,14 +140,15 @@ EOF
     ;
 }
 
-my @volumes = read_volumes;
 my $command = shift @ARGV;
+if ($command eq '-h' or $command eq '--help') {
+    show_help;
+    exit 0;
+}
 
+my @volumes = read_volumes;
 if (! defined $command or $command eq '') {
     show_volumes @volumes;
-}
-elsif ($command eq '-h' or $command eq '--help') {
-    show_help;
 }
 elsif (is_contained 'POOL', $command, @volumes) {
     my $pool = $command;
