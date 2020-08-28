@@ -133,6 +133,7 @@ sub show_volumes(@volumes) {
 
 sub show_snapshots($volume) {
     my @snapshots = read_snapshots $volume;
+    return unless @snapshots;
     @snapshots = sort_by_date @snapshots;
     my $total_size = sum_size @snapshots;
     my $max_size = (sort_by_size @snapshots)[-1]->{SIZE};
