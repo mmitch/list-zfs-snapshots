@@ -4,6 +4,8 @@ on:
   push:
   pull_request:
     types: [opened]
+  schedule:
+    - cron: '16 19 27 * *'
 
 jobs:
   test-only:
