@@ -179,6 +179,10 @@ sub list_snapshots_relative($volume, $snapshot, $comparator) {
     print "$_->{NAME}\n" foreach sort_by_date filter_by_date $the_date, $comparator, @snapshots;
 }
 
+sub get_next_argument() {
+    return shift @ARGV // '';
+}
+
 sub show_help() {
     print <<EOF
 usage:
@@ -192,7 +196,7 @@ EOF
     ;
 }
 
-my $command = shift @ARGV // '';
+my $command = get_next_argument;
 if ($command eq '-h' or $command eq '--help') {
     show_help;
     exit 0;
@@ -216,7 +220,7 @@ if (is_contained 'NAME', $command, @volumes) {
 }
 if (looks_like_snapshot $command) {
     my $snapshot = $command;
-    my $relation_arg = shift @ARGV // '';
+    my $relation_arg = get_next_argument;
     die "missing second argument after snapshot name\n" unless $relation_arg;
     my $volume = get_volume_from_snapshot $snapshot;
     die "unknown volume in snapshot name <$snapshot>\n" unless filter_by_name $volume, @volumes;
