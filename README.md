@@ -11,14 +11,20 @@ list-zfs-snapshots can list ZFS snapshots in various ways.
 usage
 -----
 
-* Calling `list-zfs-snapshots` without any arguments will list the
-  snapshot usage of all ZFS volumes.
+* Calling `list-zfs-snapshots` without any arguments will list all ZFS
+  volumes.  
+  The output contains the snapshot names, relative and absolute
+  snapshot sizes and is ordered by snapshot size.
   
 * Calling `list-zfs-snapshots` with the name of a ZFS pool as first
-  argument will list the snapshot usage of only that pool.
+  argument will list the snapshot usage of only that pool.  
+  The output contains the snapshot names, relative and absolute
+  snapshot sizes and is ordered by snapshot size.
   
 * Calling `list-zfs-snapshots` with the name of a ZFS volume as first
   argument will list the individual snapshots in that volume.  
+  The output contains the snapshot names, relative and absolute
+  snapshot sizes and is ordered by snapshot creation time.  
   _Because of ZFS internals the used space per snapshot might not be
   correct.  The sum of the used space of all snapshots seldom matches
   the snapshot usage listed at the volume.  The volume value is
@@ -26,6 +32,13 @@ usage
   of other snapshots – this is a byproduct of the copy-on-write
   semantics and completely normal._
   
+* Calling `list-zfs-snapshots` with the name of a snapshot as first
+  argument followed by either `after` or `before` as second argument
+  will list all other snapshots of in the corresponding volume that
+  have been created either after or before the given snapshot.  
+  The output contains only the snapshot names and is ordered by
+  snapshot creation time.
+
 * Calling `list-zfs-snapshots` with either `-h` or `--help` as first
   argument will show a brief help text.
 

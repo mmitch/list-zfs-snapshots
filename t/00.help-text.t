@@ -24,10 +24,12 @@ use warnings;
 
 use constant EXPECTED_HELP_TEXT => <<'EOF';
 usage:
-  list-zfs-snapshots              -  list total snapshot usage of all volumes
-  list-zfs-snapshots <pool>       -  list total snapshot usage of all volumes in <pool>
-  list-zfs-snapshots <volume>     -  list detailled snapshot usage in <volume>
-  list-zfs-snapshots -h | --help  -  show this help
+  list-zfs-snapshots                    -  list total snapshot usage of all volumes
+  list-zfs-snapshots <pool>             -  list total snapshot usage of all volumes in <pool>
+  list-zfs-snapshots <volume>           -  list detailled snapshot usage in <volume>
+  list-zfs-snapshots <snapshot> after   -  list names of newer snapshots from same volume
+  list-zfs-snapshots <snapshot> before  -  list names of older snapshots from same volume
+  list-zfs-snapshots -h | --help        -  show this help
 EOF
 
 subtest 'check help text using -h' => sub {
@@ -49,4 +51,3 @@ subtest 'check help text using --help' => sub {
     # then
     is($helptext, EXPECTED_HELP_TEXT, 'printed help text');
 };
-

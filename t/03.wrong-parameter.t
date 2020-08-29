@@ -36,7 +36,7 @@ subtest 'call with bogus parameter' => sub {
 
     # then
     is($result, <<'EOF'
-<zglfrx> is neither a known pool nor a known volume
+<zglfrx> is neither a known pool, volume, nor snapshot name
 EOF
        , 'script output');
 };
