@@ -1,2 +1,9 @@
+# backup files
 *~
+
+# Perl test coverage
 cover_db/
+
+# emacs locks
+\#*#
+.#*
