@@ -169,16 +169,17 @@ if ($command eq '-h' or $command eq '--help') {
 my @volumes = read_volumes;
 if ($command eq '') {
     show_volumes @volumes;
+    exit 0;
 }
-elsif (is_contained 'POOL', $command, @volumes) {
+if (is_contained 'POOL', $command, @volumes) {
     my $pool = $command;
     @volumes = filter_by_pool $pool, @volumes;
     show_volumes @volumes;
+    exit 0;
 }
-elsif (is_contained 'NAME', $command, @volumes) {
+if (is_contained 'NAME', $command, @volumes) {
     my $volume = $command;
     show_snapshots $volume;
+    exit 0;
 }
-else {
-    die "<$command> is neither a known pool nor a known volume\n";
-}
+die "<$command> is neither a known pool nor a known volume\n";
