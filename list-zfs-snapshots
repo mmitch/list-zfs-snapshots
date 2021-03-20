@@ -37,6 +37,8 @@ use constant RELATIONS => { # <=> results
 
 my $ZFS = $ENV{ZFS_BINARY} // '/sbin/zfs';
 
+my $STDOUT_IS_PIPE = -p STDOUT;
+
 sub percent_string($val, $max_val, $max_len) {
     return '' unless $max_val;
     return '#' x ($val * $max_len / $max_val);
@@ -139,6 +141,12 @@ sub get_percentage($part, $total) {
 
 sub show_volumes(@volumes) {
     @volumes = sort_by_size @volumes;
+
+    if ($STDOUT_IS_PIPE) {
+	print "$_\n" foreach map { $_->{NAME} } @volumes;
+	return;
+    }
+
     my $total_size = sum_size @volumes;
     my $max_size = $volumes[-1]->{SIZE};
 
@@ -155,6 +163,12 @@ sub show_volumes(@volumes) {
 sub show_snapshots($volume) {
     my @snapshots = read_snapshots $volume;
     return unless @snapshots;
+
+    if ($STDOUT_IS_PIPE) {
+	print "$_\n" foreach map { $_->{NAME} } @snapshots;
+	return;
+    }
+
     @snapshots = sort_by_date @snapshots;
     my $total_size = sum_size @snapshots;
     my $max_size = (sort_by_size @snapshots)[-1]->{SIZE};
