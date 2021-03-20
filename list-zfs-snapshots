@@ -148,7 +148,7 @@ sub show_volumes(@volumes) {
 	my $histogram = percent_string($size, $max_size, 16);
 	my $size_percent = get_percentage($size, $total_size);
 	my $size_readable = format_bytes( $size );
-	printf "%16s  %s  %4s  %s\n", $histogram, $size_percent, $size_readable, $name;
+	printf "%16s  %s  %5s  %s\n", $histogram, $size_percent, $size_readable, $name;
     }
 }
 
@@ -166,7 +166,7 @@ sub show_snapshots($volume) {
 	my $histogram = percent_string($size, $max_size, 16);
 	my $size_percent = get_percentage($size, $total_size);
 	my $size_readable = format_bytes( $size );
-	printf "%16s  %s  %4s  %s\n", $histogram, $size_percent, $size_readable, $name;
+	printf "%16s  %s  %5s  %s\n", $histogram, $size_percent, $size_readable, $name;
     }
 }
 
