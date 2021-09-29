@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# Copyright (C) 2020  Christian Garbs <mitch@cgarbs.de>
+# Copyright (C) 2020, 2021  Christian Garbs <mitch@cgarbs.de>
 # Licensed under GNU GPL v3 or later.
 #
 # This file is part of list-zfs-snapshots
@@ -36,15 +36,15 @@ subtest 'call without parameters' => sub {
 
     # then
     is($result, <<'EOF'
-                    0%     0  bpool/BOOT
-                    0%     0  rpool/ROOT
-                    0%     0  rpool/var
-                    0%     0  rpool/var/cache
-               #    4%  301M  bpool/BOOT/debian
-              ##    6%  460M  rpool/opt
-          ######   15%  1.1G  rpool/var/log
-  ##############   35%  2.5G  rpool/ROOT/debian
-################   39%  2.8G  rpool/var/spool
+                    0%      0  bpool/BOOT
+                    0%      0  rpool/ROOT
+                    0%      0  rpool/var
+                    0%      0  rpool/var/cache
+               #    4%   301M  bpool/BOOT/debian
+              ##    6%   460M  rpool/opt
+          ######   15%   1.1G  rpool/var/log
+  ##############   35%   2.5G  rpool/ROOT/debian
+################   39%   2.8G  rpool/var/spool
 EOF
        , 'script output');
 };
@@ -57,8 +57,8 @@ subtest 'call with pool A' => sub {
 
     # then
     is($result, <<'EOF'
-                    0%     0  bpool/BOOT
-################  100%  301M  bpool/BOOT/debian
+                    0%      0  bpool/BOOT
+################  100%   301M  bpool/BOOT/debian
 EOF
        , 'script output');
 };
@@ -71,13 +71,13 @@ subtest 'call with pool B' => sub {
 
     # then
     is($result, <<'EOF'
-                    0%     0  rpool/ROOT
-                    0%     0  rpool/var
-                    0%     0  rpool/var/cache
-              ##    7%  460M  rpool/opt
-          ######   16%  1.1G  rpool/var/log
-  ##############   36%  2.5G  rpool/ROOT/debian
-################   41%  2.8G  rpool/var/spool
+                    0%      0  rpool/ROOT
+                    0%      0  rpool/var
+                    0%      0  rpool/var/cache
+              ##    7%   460M  rpool/opt
+          ######   16%   1.1G  rpool/var/log
+  ##############   36%   2.5G  rpool/ROOT/debian
+################   41%   2.8G  rpool/var/spool
 EOF
        , 'script output');
 };
