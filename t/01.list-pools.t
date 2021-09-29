@@ -24,7 +24,7 @@ use warnings;
 
 sub run_with_parameters
 {
-    my $cmdline = 'ZFS_BINARY=t/mock-zfs.sh ./list-zfs-snapshots ' . join(' ', @_) . ' 2>&1';
+    my $cmdline = 'LIST_ZFS_SNAPSHOT_MOCK_STDOUT_NO_PIPE=1 ZFS_BINARY=t/mock-zfs.sh ./list-zfs-snapshots ' . join(' ', @_) . ' 2>&1';
     return `$cmdline`;
 }
 

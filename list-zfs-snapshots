@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# Copyright (C) 2020  Christian Garbs <mitch@cgarbs.de>
+# Copyright (C) 2020, 2021  Christian Garbs <mitch@cgarbs.de>
 # Licensed under GNU GPL v3 or later.
 #
 # This file is part of list-zfs-snapshots
@@ -37,7 +37,7 @@ use constant RELATIONS => { # <=> results
 
 my $ZFS = $ENV{ZFS_BINARY} // '/sbin/zfs';
 
-my $STDOUT_IS_PIPE = -p STDOUT;
+my $STDOUT_IS_PIPE = $ENV{LIST_ZFS_SNAPSHOT_MOCK_STDOUT_NO_PIPE} ? 0 : -p STDOUT;
 
 sub percent_string($val, $max_val, $max_len) {
     return '' unless $max_val;
@@ -65,7 +65,7 @@ sub read_volumes() {
 	};
     }
     close $fh or die "can't close $ZFS: $!\n";
-    
+
     return @volumes;
 }
 
