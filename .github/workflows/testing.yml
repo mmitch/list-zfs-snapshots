@@ -42,4 +42,4 @@ jobs:
       - run: PERL5OPT=-MDevel::Cover prove -lv t
       - run: cover -select list-zfs-snapshots -ignore 't/*' -report clover
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
