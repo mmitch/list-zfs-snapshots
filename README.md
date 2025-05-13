@@ -1,7 +1,7 @@
 list-zfs-snapshots
 ==================
 
-[![Build Status](https://img.shields.io/github/workflow/status/mmitch/list-zfs-snapshots/tests/master)](https://github.com/mmitch/list-zfs-snapshots/actions?query=branch%3Amaster)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/mmitch/list-zfs-snapshots/testing.yml?branch=master)](https://github.com/mmitch/list-zfs-snapshots/actions?query=branch%3Amaster)
 [![Coverage Status](https://codecov.io/github/mmitch/list-zfs-snapshots/coverage.svg?branch=master)](https://codecov.io/github/mmitch/list-zfs-snapshots?branch=master)
 [![GPL 3+](https://img.shields.io/badge/license-GPL%203%2B-blue.svg)](http://www.gnu.org/licenses/gpl-3.0-standalone.html)
 
